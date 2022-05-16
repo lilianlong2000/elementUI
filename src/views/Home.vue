@@ -1,18 +1,39 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+  <div class="common-layout">
+    <el-container>
+      <Aside></Aside>
+      <el-container>
+        <el-header style="padding: 0">
+          <Header>
+            <template #title>
+              <div style="color: white; font-weight: bold">个人博客首页</div>
+            </template>
+          </Header>
+        </el-header>
+        <el-main style="padding: 0">
+          <Main></Main>
+        </el-main>
+      </el-container>
+    </el-container>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
-
-export default defineComponent({
-  name: "Home",
-  components: {
-    HelloWorld,
-  },
-});
+<script lang='ts' setup>
+import axios from '@/util/axios'
+import Aside from '@/components/home/aside.vue'
+import Header from '@/components/home/header.vue'
+import Main from '@/components/home/main.vue'
 </script>
+
+<style lang="scss" scoped>
+// .el-main {
+//   padding: 0;
+//   // border: 1px solid var(--el-color-primary-light-5);
+// }
+.el-header {
+  border-bottom: 1px solid var(--el-color-info-light-5);
+}
+// .containermain {
+//   transition: width 3s ease;
+// }
+</style>

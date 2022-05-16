@@ -1,0 +1,254 @@
+<template>
+  <div class="common-layout">
+    <el-container>
+      <el-header style="padding: 0">
+        <Header>
+          <template #title>
+            <div class="title">个人信息修改页面</div>
+          </template>
+        </Header>
+      </el-header>
+      <el-container>
+        <Aside></Aside>
+        <el-main>
+          <el-card class="box-card">
+            <template #header>
+              <div class="card-header">
+                <span>个人信息</span>
+              </div>
+            </template>
+            <el-form
+              ref="formRef"
+              :label-position="'top'"
+              label-width="100px"
+              :model="formLabelAlign"
+              style="max-width: 700px"
+              :rules="rules"
+            >
+              <el-form-item label="Name">
+                <el-input v-model="formLabelAlign.name" :disabled="nameflag" />
+              </el-form-item>
+              <el-form-item label="Password" prop="password">
+                <el-input
+                  v-model="formLabelAlign.password"
+                  type="password"
+                  :disabled="index != 1"
+                  v-focus="index === 1"
+                  clearable
+                  show-password
+                  placeholder="请输入密码"
+                />
+                <el-button @click="changeindex(1)" class="btn" type="danger" size="small">{{
+                  !(index === 1) ? '填入' : '关闭填入'
+                }}</el-button>
+              </el-form-item>
+              <el-form-item label="NewPassword" prop="newpsw">
+                <el-input
+                  v-model="formLabelAlign.newpsw"
+                  type="password"
+                  :disabled="index != 1.1"
+                  v-focus="index === 1.1"
+                  clearable
+                  show-password
+                  placeholder="请输入新密码"
+                />
+                <el-button @click="changeindex(1.1)" class="btn" type="danger" size="small">{{
+                  !(index === 1.1) ? '填入' : '关闭填入'
+                }}</el-button>
+              </el-form-item>
+              <el-form-item label="AgainNewPassword" prop="againnewpsw">
+                <el-input
+                  v-model="formLabelAlign.againnewpsw"
+                  type="password"
+                  :disabled="index != 1.2"
+                  v-focus="index === 1.2"
+                  clearable
+                  show-password
+                  placeholder="请输入再次输入新密码"
+                />
+                <el-button @click="changeindex(1.2)" class="btn" type="danger" size="small">{{
+                  !(index === 1.2) ? '填入' : '关闭填入'
+                }}</el-button>
+              </el-form-item>
+              <el-form-item label="Age" prop="age">
+                <el-input
+                  v-model="formLabelAlign.age"
+                  :disabled="index != 2"
+                  v-focus="index === 2"
+                  clearable
+                  placeholder="请输入年龄"
+                />
+                <el-button @click="changeindex(2)" class="btn" type="danger" size="small">{{
+                  !(index === 2) ? '修改' : '禁止修改'
+                }}</el-button>
+              </el-form-item>
+              <el-form-item label="Sex" prop="sex">
+                <el-select
+                  v-model="formLabelAlign.sex"
+                  clearable
+                  placeholder="请选择性别"
+                  :disabled="index != 3"
+                >
+                  <el-option :key="false" :value="false" label="男"> </el-option>
+                  <el-option :key="true" :value="true" label="女"> </el-option>
+                </el-select>
+                <el-button @click="changeindex(3)" class="btn" type="danger" size="small">{{
+                  !(index === 3) ? '修改' : '禁止修改'
+                }}</el-button>
+              </el-form-item>
+              <br />
+              <el-form-item>
+                <el-button type="primary" plain @click="submitForm(formRef)" class="commitbtn"
+                  >修改个人信息</el-button
+                >
+              </el-form-item>
+            </el-form>
+          </el-card>
+        </el-main>
+      </el-container>
+    </el-container>
+  </div>
+</template>
+<script lang="ts" setup>
+import Header from '@/components/home/header.vue'
+import Aside from '@/components/home/aside.vue'
+import { ref, reactive, onMounted, inject } from 'vue'
+import axios from '@/util/axios'
+import { ElMessageBox, FormInstance, ElMessage } from 'element-plus'
+interface formLabel {
+  name: string
+  password: string
+  age: string
+  sex: string
+  newpsw: string
+  againnewpsw: string
+}
+let formLabelAlign: formLabel = reactive({
+  name: '',
+  password: '',
+  newpsw: '',
+  againnewpsw: '',
+  age: '',
+  sex: '',
+})
+const nameflag = ref(true)
+const index = ref(0)
+const reload: Function | undefined = inject('reload')
+const formRef = ref<FormInstance>()
+const rules = {
+  password: [
+    {
+      required: true,
+      message: '请输入密码！',
+      trigger: 'change',
+    },
+    { min: 6, max: 16, message: '密码的长度为6-16个任意字符！', trigger: 'change' },
+  ],
+  age: [
+    { required: true, message: '必须填写年龄！' },
+    { type: 'string', message: '年龄必须是数字！' },
+    { min: 1, max: 3, message: '年龄必须是0~999！' },
+  ],
+  sex: [
+    {
+      required: true,
+      message: '请选择性别！',
+    },
+  ],
+  newpsw: [
+    {
+      required: true,
+      message: '请输入新密码！',
+      trigger: 'change',
+    },
+    { min: 6, max: 16, message: '密码的长度为6-16个任意字符!', trigger: 'change' },
+  ],
+  againnewpsw: [
+    {
+      required: true,
+      message: '请再次输入新密码！',
+      trigger: 'change',
+    },
+    { min: 6, max: 16, message: '密码的长度为6-16个任意字符!', trigger: 'change' },
+  ],
+}
+onMounted(() => {
+  getuserinfo()
+})
+
+var getuserinfo = () => {
+  const user = JSON.parse(localStorage.getItem('user') as string)
+  for (let key in user) {
+    formLabelAlign[key] = user[key]
+  }
+  // axios.get('/getuserinfo', { params: { name: user.name } } as any).then((res) => {
+  //   console.log(res.data)
+  //   if (res.data.code === 1) {
+  //     formLabelAlign.password = res.data.password
+  //   } else if (res.data.code === 0) {
+  //     ElMessage.error(res.data.msg)
+  //   }
+  // })
+}
+
+const submitForm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  formEl.validate((bool) => {
+    if (bool) {
+      const data = JSON.parse(JSON.stringify(formLabelAlign))
+      console.log(data)
+      if (data.newpsw !== data.againnewpsw) {
+        return ElMessage.error('两次输入的新密码不一样!')
+      }
+      delete data.againnewpsw
+      data.oldpsw = data.password
+      delete data.password
+      axios.post('/changeuserinfo', data).then((res) => {
+        if (res.data.code === 1) {
+          // localStorage.setItem('user', JSON.stringify(formLabelAlign))
+          if (reload) {
+            reload()
+          }
+          ElMessage.success(res.data.msg)
+        } else if (res.data.code === 0) {
+          ElMessage.warning(res.data.msg)
+        }
+      })
+    } else {
+      ElMessage.error('请完成表单提示')
+    }
+  })
+}
+
+const changeindex = (num: number) => {
+  index.value === num ? (index.value = 0) : (index.value = num)
+}
+</script>
+<style lang="scss" scoped>
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.title {
+  color: white;
+  font-weight: bold;
+  font-family: 'Courier New', Courier, monospace;
+  height: 100%;
+  line-height: 60px;
+}
+.btn {
+  position: absolute;
+  right: -72px;
+}
+.el-form-item {
+  margin-right: 72px;
+  position: relative;
+}
+.el-select {
+  width: 100%;
+}
+.commitbtn {
+  width: 100%;
+}
+</style>

@@ -1,30 +1,80 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </div>
-  <router-view />
+  <router-view v-slot="{ Component }" v-if="isRouterAlive">
+    <keep-alive>
+      <Transition :name="trans" mode="out-in">
+        <component :is="Component" />
+      </Transition>
+    </keep-alive>
+  </router-view>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+<script lang="ts" setup>
+import { watch, ref, nextTick, provide } from 'vue'
+import { useRouter } from 'vue-router'
+import { onBeforeRouteUpdate } from 'vue-router'
+const trans = ref('')
+const isRouterAlive = ref(true)
+const $router = useRouter()
+const reload = async () => {
+  isRouterAlive.value = false
+  await nextTick()
+  isRouterAlive.value = true
 }
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+provide('reload', reload)
+watch(
+  () => $router.currentRoute.value,
+  (newvalue: any, oldvalue: any) => {
+    console.log(newvalue, oldvalue)
+    if (newvalue.meta.index > oldvalue.meta.index) {
+      trans.value = 'trans-left'
+      console.log(111)
+    } else {
+      trans.value = 'trans-right'
+      console.log(222)
     }
   }
+)
+/* 
+onBeforeRouteUpdate((to: any, form: any) => {
+  console.log(to.meta.index, form.meta.index)
+  if (to.meta.index > form.meta.index) {
+    trans.value = 'trans-left'
+  } else {
+    trans.value = 'trans-right'
+  }
+}) 
+*/
+</script>
+
+<style lang="scss">
+* {
+  margin: 0;
+  padding: 0;
+}
+.trans-left-enter-active,
+.trans-left-leave-active,
+.trans-right-enter-active,
+.trans-right-leave-active {
+  position: absolute;
+  opacity: 1;
+  width: 100%;
+  transition: all 0.3s ease-in-out;
+}
+
+.trans-right-leave-to {
+  opacity: 0;
+  // transform: translate(20px, 0);
+}
+.trans-left-enter-from {
+  opacity: 1;
+  // transform: translate(20px, 0);
+}
+.trans-left-leave-to {
+  opacity: 0;
+  // transform: translate(-20px, 0);
+}
+.trans-right-enter-from {
+  opacity: 1;
+  // transform: translate(-20px, 0);
 }
 </style>
