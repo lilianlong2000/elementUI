@@ -1,183 +1,169 @@
 <template>
-  <div class="echartsbox" ref="chartDom"></div>
-  <el-button @click="getWheath">获取</el-button>
+  <div class="echartsbox" ref="chartDom" id="main"></div>
+  <el-button @click="getWheath">获取天气</el-button>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, getCurrentInstance } from 'vue'
+import { ref, onMounted, reactive, getCurrentInstance, computed, onBeforeUnmount } from 'vue'
 import * as echarts from 'echarts'
 import axios from 'axios'
-const chartDom = ref<HTMLElement>()
+import { useStore } from 'vuex'
+const timmer = ref()
+const temdaylist = ref()
+const temnightlist = ref()
+const timeslist = ref()
+const myCharts = ref()
 type EChartsOption = echarts.EChartsOption
+const { state, commit, getters } = useStore()
+
 function getWheath() {
-  axios.get('/api/cityjson/?ie=utf-8').then((res) => {
-    const ip = res.data.slice(28, 40)
-    axios
-      .get('/apiposition', {
-        params: {
-          token: '4596b6a95d39d821ee3c386a015aca68{oid=58661,mid=117732}',
-          ip,
-        },
+  let result = null
+  axios
+    .get('https://v0.yiketianqi.com/free/week', {
+      params: {
+        appid: '99236725',
+        appsecret: 'sJ2kYLVq',
+        city: '新吴',
+      },
+    })
+    .then((res) => {
+      result = res.data
+      console.log(res.data.data)
+      commit('changeWheathInfo', result.data)
+      temdaylist.value = computed(() => getters.getWheathTemDay)
+      temnightlist.value = computed(() => getters.getWheathTemNight)
+      timeslist.value = computed(() => getters.gettimes)
+      myCharts.value.setOption({
+        series: [
+          {
+            type: 'bar',
+            data: temdaylist.value.value,
+          },
+          {
+            type: 'bar',
+            data: temnightlist.value.value,
+          },
+        ],
+        xAxis: [
+          {
+            data: timeslist.value.value,
+          },
+        ],
       })
-      .then((res) => {
-        console.log(res)
-      })
-  })
+    })
+
+  return result
 }
-// var chartDom = document.getElementById('main') as HTMLElement
-// const getPosition = () => {
-//   axios.get('http://pv.sohu.com/cityjson').then((res) => {
-//     console.log(res)
-//   })
-// }
 
 onMounted(() => {
-  // getPosition()
-
-  console.log(chartDom.value)
-  var myChart = echarts.init(chartDom.value as unknown as HTMLElement)
+  var chartDom = document.getElementById('main')!
+  var myChart = echarts.init(chartDom as any)
+  myCharts.value = myChart
+  if (timmer.value) clearInterval(timmer as any)
+  timmer.value = setInterval(() => {
+    getWheath()
+  }, 120000)
+  getWheath()
   var option: EChartsOption
 
   option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross',
+        crossStyle: {
+          color: '#999',
+        },
+      },
+    },
+    toolbox: {
+      feature: {
+        dataView: { show: true, readOnly: false },
+        magicType: { show: true, type: ['line', 'bar'] },
+        restore: { show: true },
+        saveAsImage: { show: true },
+      },
+    },
+    legend: {
+      data: ['白天温度', '夜晚温度', 'Temperature'],
+    },
+    xAxis: [
+      {
+        type: 'category',
+        data: ['mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        axisPointer: {
+          type: 'shadow',
+        },
+      },
+    ],
+    yAxis: [
+      {
+        type: 'value',
+        name: '降雨量',
+        min: 0,
+        max: 250,
+        interval: 50,
+        axisLabel: {
+          formatter: '{value} ml',
+        },
+      },
+      {
+        type: 'value',
+        name: '温度',
+        min: 0,
+        max: 45,
+        interval: 2,
+        axisLabel: {
+          formatter: '{value} °C',
+        },
+      },
+    ],
     series: [
       {
-        type: 'gauge',
-        center: ['50%', '60%'],
-        startAngle: 200,
-        endAngle: -20,
-        min: 0,
-        max: 60,
-        splitNumber: 12,
-        itemStyle: {
-          color: '#FFAB91',
-        },
-        progress: {
-          show: true,
-          width: 30,
-        },
-
-        pointer: {
-          show: false,
-        },
-        axisLine: {
-          lineStyle: {
-            width: 30,
+        name: '白天温度',
+        type: 'bar',
+        yAxisIndex: 1,
+        label: { show: true },
+        tooltip: {
+          valueFormatter: function (value) {
+            return value + ' °C'
           },
         },
-        axisTick: {
-          distance: -45,
-          splitNumber: 5,
-          lineStyle: {
-            width: 2,
-            color: '#999',
-          },
-        },
-        splitLine: {
-          distance: -52,
-          length: 14,
-          lineStyle: {
-            width: 3,
-            color: '#999',
-          },
-        },
-        axisLabel: {
-          distance: -20,
-          color: '#999',
-          fontSize: 20,
-        },
-        anchor: {
-          show: false,
-        },
-        title: {
-          show: false,
-        },
-        detail: {
-          valueAnimation: true,
-          width: '60%',
-          lineHeight: 40,
-          borderRadius: 8,
-          offsetCenter: [0, '-15%'],
-          fontSize: 30,
-          fontWeight: 'bolder',
-          formatter: '{value} °C',
-          color: 'auto',
-        },
-        data: [
-          {
-            value: 20,
-          },
-        ],
+        data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3],
       },
-
       {
-        type: 'gauge',
-        center: ['50%', '60%'],
-        startAngle: 200,
-        endAngle: -20,
-        min: 0,
-        max: 60,
-        itemStyle: {
-          color: '#FD7347',
-        },
-        progress: {
-          show: true,
-          width: 8,
-        },
-
-        pointer: {
-          show: false,
-        },
-        axisLine: {
-          show: false,
-        },
-        axisTick: {
-          show: false,
-        },
-        splitLine: {
-          show: false,
-        },
-        axisLabel: {
-          show: false,
-        },
-        detail: {
-          show: false,
-        },
-        data: [
-          {
-            value: 20,
+        name: '夜晚温度',
+        type: 'bar',
+        yAxisIndex: 1,
+        label: { show: true },
+        tooltip: {
+          valueFormatter: function (value) {
+            return value + ' °C'
           },
-        ],
+        },
+        data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3],
+      },
+      {
+        name: 'Temperature',
+        type: 'line',
+        yAxisIndex: 1,
+        tooltip: {
+          valueFormatter: function (value) {
+            return value + ' °C'
+          },
+        },
+        data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2],
       },
     ],
   }
 
-  setInterval(function () {
-    const random = +(Math.random() * 60).toFixed(2)
-    myChart.setOption<echarts.EChartsOption>({
-      series: [
-        {
-          data: [
-            {
-              value: random,
-            },
-          ],
-        },
-        {
-          data: [
-            {
-              value: random,
-            },
-          ],
-        },
-      ],
-    })
-  }, 2000)
   option && myChart.setOption(option)
 })
 </script>
 <style lang="scss" scoped>
 .echartsbox {
-  height: 270px;
-  width: 350px;
+  width: 100%;
+  height: 550px;
+  position: relative;
 }
 </style>

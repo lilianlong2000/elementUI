@@ -20,6 +20,7 @@ export default createStore({
       },
     ],
     editableTabsIndex: '',
+    wheathInfo: [],
   },
   mutations: {
     changeCollapse(state, data) {
@@ -51,8 +52,21 @@ export default createStore({
     removeTabsValue(state, data) {
       state.editableTabsValue = data
     },
+    changeWheathInfo(state, data) {
+      state.wheathInfo = data
+    },
   },
-  getters: {},
+  getters: {
+    getWheathTemDay(state) {
+      return state.wheathInfo.map((item: any) => item?.tem_day)
+    },
+    getWheathTemNight(state) {
+      return state.wheathInfo.map((item: any) => item?.tem_night)
+    },
+    gettimes(state) {
+      return state.wheathInfo.map((item: any) => item?.date.slice(5))
+    },
+  },
   actions: {},
   modules: {},
   plugins: [vueLocal.plugin],

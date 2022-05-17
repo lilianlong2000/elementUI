@@ -69,10 +69,16 @@
 import { useStore } from 'vuex'
 import { onMounted, ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { UploadFile, UploadFiles, UploadRequestOptions, ElMessage } from 'element-plus'
+import {
+  UploadFile,
+  UploadFiles,
+  UploadRequestOptions,
+  ElMessage,
+  MessageParamsTyped,
+} from 'element-plus'
 import type { UploadProps } from 'element-plus'
 import { Delete, Upload, Plus, ZoomIn } from '@element-plus/icons-vue'
-import axios from '@/util/axios'
+import axios from '../../util/axios.js'
 
 const { state, commit } = useStore()
 const $router = useRouter()
@@ -88,7 +94,7 @@ const imgSrc: { value: string | undefined } = ref('')
 
 onMounted(() => {
   const user = JSON.parse(localStorage.getItem('user') as string)
-  if (user.imageUrl) {
+  if (user) {
     imgSrc.value = user.imageUrl
     console.log(user.imageUrl)
   } else {
@@ -131,14 +137,14 @@ const handleUpload = (file: UploadFile) => {
         user: user,
       },
     })
-    .then((res) => {
+    .then((res: { data: { msg: MessageParamsTyped | undefined } }) => {
       const user = JSON.parse(localStorage.getItem('user') as any)
       user.imageUrl = file.url
       localStorage.setItem('user', JSON.stringify(user))
       ElMessage.success(res.data.msg)
       imgSrc.value = file.url
     })
-    .catch((res) => {
+    .catch((res: any) => {
       console.log(res)
       ElMessage.error('上传失败!')
     })
