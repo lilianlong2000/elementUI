@@ -1,4 +1,3 @@
-import { ja } from 'element-plus/lib/locale'
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 
 const routes: Array<RouteRecordRaw> = [
@@ -15,21 +14,33 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'navigatorOne',
         name: 'navigatorOne',
+        meta: {
+          index: 0.1,
+        },
         component: () => import('@/views/home/navigatorOne.vue'),
       },
       {
         path: 'navigatorTwo',
         name: 'navigatorTwo',
+        meta: {
+          index: 0.2,
+        },
         component: () => import('@/views/home/navigatorTwo.vue'),
       },
       {
         path: 'navigatorThree',
         name: 'navigatorThree',
+        meta: {
+          index: 0.3,
+        },
         component: () => import('@/views/home/navigatorThree.vue'),
       },
       {
         path: 'navigatorFour',
         name: 'navigatorFour',
+        meta: {
+          index: 0.5,
+        },
         component: () => import('@/views/home/navigatorFour.vue'),
       },
     ],
@@ -71,6 +82,15 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+})
+
+router.beforeEach((to, from, next) => {
+  console.log(to.meta)
+  if (to.meta.index) {
+    next()
+  } else {
+    next('/404')
+  }
 })
 
 // const routeAry = ['/', '/login', '/register']

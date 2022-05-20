@@ -15,12 +15,13 @@ export default createStore({
     editableTabsValue: [
       {
         name: 'navigatorOne',
-        title: 'navigatorOne',
+        title: '博客列表',
         path: '/navigatorOne',
       },
     ],
     editableTabsIndex: '',
     wheathInfo: [],
+    wheathTodayInfo: {},
   },
   mutations: {
     changeCollapse(state, data) {
@@ -55,6 +56,9 @@ export default createStore({
     changeWheathInfo(state, data) {
       state.wheathInfo = data
     },
+    changeWheathTodayInfo(state, data) {
+      state.wheathTodayInfo = data
+    },
   },
   getters: {
     getWheathTemDay(state) {
@@ -64,7 +68,27 @@ export default createStore({
       return state.wheathInfo.map((item: any) => item?.tem_night)
     },
     gettimes(state) {
-      return state.wheathInfo.map((item: any) => item?.date.slice(5))
+      let list = state.wheathInfo.map((item: any) => item?.date.slice(5))
+      list[0] = '今天'
+      return list
+    },
+    getwindspeed(state) {
+      return state.wheathInfo.map((item: any) => item?.win_speed.slice(1, 2))
+    },
+    getWeathInfo(state: any) {
+      let obj: any = {
+        实况温度: 'tem',
+        天气情况: 'wea',
+        风向: 'win',
+        风力: 'win_speed',
+        风速: 'win_meter',
+        空气质量: 'air',
+        气压: 'pressure',
+        湿度: 'humidity',
+      }
+      return (data: string) => {
+        return state.wheathTodayInfo[obj[data]]
+      }
     },
   },
   actions: {},

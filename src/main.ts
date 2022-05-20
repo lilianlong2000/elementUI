@@ -15,10 +15,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 //自定义指令
 app.directive('focus', {
   beforeUpdate(el, binding, vnode, onode) {
-    console.log(binding.value)
-
     if (binding.value) {
-      console.log(1)
       nextTick(() => {
         el.children[0].children[0].focus()
       })

@@ -1,11 +1,17 @@
 <template>
-  <div class="header">
-    <el-button @click="changeCollapse" class="btn">
-      <el-tooltip placement="right" :content="isCollapse ? '显示菜单' : '隐藏菜单'">
+  <div class="header" :style="{ backgroundColor: color }">
+    <el-tooltip placement="right" :content="isCollapse ? '显示菜单' : '隐藏菜单'">
+      <el-button @click="changeCollapse" class="btn">
         <el-icon><Grid /></el-icon>
-      </el-tooltip>
-    </el-button>
+      </el-button>
+    </el-tooltip>
     <slot name="title" class="slot"></slot>
+    <el-tooltip placement="bottom" content="更改主题色">
+      <div class="el-color-picker">
+        <el-color-picker v-model="color"></el-color-picker>
+      </div>
+    </el-tooltip>
+
     <el-dropdown class="positionimage">
       <div>
         <el-image class="headerimage" :src="imgSrc" fit="fill"></el-image>
@@ -82,6 +88,7 @@ import axios from '../../util/axios.js'
 
 const { state, commit } = useStore()
 const $router = useRouter()
+const color = ref('#2e50ff')
 const changeCollapse = () => {
   commit('changeCollapse', !state.isCollapse)
 }
@@ -165,7 +172,6 @@ const goModiSelfinfo = () => {
 <style lang="scss" scoped>
 .header {
   height: 100%;
-  background-color: #2e50ff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -178,7 +184,7 @@ const goModiSelfinfo = () => {
   border: 1px solid rgb(118, 20, 113);
 }
 .positionimage {
-  position: fixed;
+  position: absolute;
   right: 40px;
   top: 5px;
 }
@@ -191,5 +197,10 @@ const goModiSelfinfo = () => {
   left: 10px;
   top: 60px;
   height: 38px;
+}
+.el-color-picker {
+  position: absolute;
+  right: 110px;
+  top: 16px;
 }
 </style>
