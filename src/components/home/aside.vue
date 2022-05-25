@@ -10,13 +10,13 @@
   >
     <el-sub-menu index="navigatorOne">
       <template #title>
-        <el-icon><location /></el-icon>
+        <el-icon><House /></el-icon>
         <span>博客首页</span>
       </template>
       <el-sub-menu index="1-1">
         <template #title><span>分组一</span></template>
         <el-menu-item index="navigatorOne">博客列表</el-menu-item>
-        <el-menu-item index="1-2-2">子类二</el-menu-item>
+        <el-menu-item index="blogsdetail">博客详情</el-menu-item>
       </el-sub-menu>
       <el-sub-menu index="1-2">
         <template #title><span>分组二</span></template>
@@ -28,7 +28,7 @@
       </el-sub-menu>
     </el-sub-menu>
     <el-menu-item index="navigatorTwo">
-      <el-icon><icon-menu /></el-icon>
+      <el-icon><MostlyCloudy /></el-icon>
       <template #title>天气预报</template>
     </el-menu-item>
     <el-menu-item index="navigatorThree">
@@ -37,7 +37,7 @@
     </el-menu-item>
     <el-menu-item index="navigatorFour">
       <el-icon><setting /></el-icon>
-      <template #title>导航四</template>
+      <template #title>个人设置</template>
     </el-menu-item>
   </el-menu>
 </template>
@@ -54,6 +54,11 @@ const isCollapse = computed(() => state.isCollapse)
 const $router = useRouter()
 const currentRouteName = ref('navigatorOne')
 const handleOpen = (key: string, keyPath: string[]) => {
+  console.log(key, keyPath)
+  if (keyPath.length > 1) {
+    commit('pushTabs', { name: keyPath[2], title: changetitle(keyPath[2]), path: `/${keyPath[2]}` })
+    return
+  }
   commit('pushTabs', { name: keyPath[0], title: changetitle(keyPath[0]), path: `/${keyPath[0]}` })
 }
 const handleClose = (key: string, keyPath: string[]) => {

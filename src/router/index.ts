@@ -43,6 +43,14 @@ const routes: Array<RouteRecordRaw> = [
         },
         component: () => import('@/views/home/navigatorFour.vue'),
       },
+      {
+        path: 'blogsdetail/:id?',
+        name: 'blogsdetail',
+        meta: {
+          index: 0.6,
+        },
+        component: () => import('@/views/home/blogsdetail.vue'),
+      },
     ],
   },
   {

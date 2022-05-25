@@ -124,8 +124,10 @@ onMounted(() => {
   }, 1000)
   timmer.value = setInterval(() => {
     getWheathWeek()
+    getWheathTodayInfo()
   }, 1200000)
   getWheathWeek()
+  getWheathTodayInfo()
   var option: EChartsOption
   var option1: EChartsOption
 

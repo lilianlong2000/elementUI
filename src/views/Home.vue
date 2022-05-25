@@ -6,7 +6,7 @@
         <el-header style="padding: 0">
           <Header>
             <template #title>
-              <div style="color: white; font-weight: bold">{{ title }}</div>
+              <div style="color: white; letter-spacing: 10px; font-weight: bold">{{ title }}</div>
             </template>
           </Header>
         </el-header>

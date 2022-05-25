@@ -22,6 +22,7 @@ export default createStore({
     editableTabsIndex: '',
     wheathInfo: [],
     wheathTodayInfo: {},
+    trans: '',
   },
   mutations: {
     changeCollapse(state, data) {
@@ -45,7 +46,7 @@ export default createStore({
       state.editableTabsValue = [
         {
           name: 'navigatorOne',
-          title: 'navigatorOne',
+          title: '博客列表',
           path: '/navigatorOne',
         },
       ]
@@ -58,6 +59,9 @@ export default createStore({
     },
     changeWheathTodayInfo(state, data) {
       state.wheathTodayInfo = data
+    },
+    changetrans(state, data) {
+      state.trans = data
     },
   },
   getters: {

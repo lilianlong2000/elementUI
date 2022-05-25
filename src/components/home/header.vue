@@ -14,7 +14,7 @@
 
     <el-dropdown class="positionimage">
       <div>
-        <el-image class="headerimage" :src="imgSrc" fit="fill"></el-image>
+        <el-image class="headerimage" fit="fill" :src="imgSrc"></el-image>
       </div>
       <template #dropdown>
         <el-dropdown-menu>
@@ -32,7 +32,13 @@
       width="30%"
       :before-upload="handleBeforeUpload"
     >
-      <el-upload action="#" list-type="picture-card" :auto-upload="false">
+      <el-upload
+        :headers="multipart / form - data"
+        action="#"
+        list-type="picture-card"
+        :auto-upload="false"
+        :ref="upload"
+      >
         <el-icon><Plus /></el-icon>
 
         <template #file="{ file }">
@@ -89,6 +95,7 @@ import axios from '../../util/axios.js'
 const { state, commit } = useStore()
 const $router = useRouter()
 const color = ref('#2e50ff')
+const upload = ref()
 const changeCollapse = () => {
   commit('changeCollapse', !state.isCollapse)
 }
@@ -101,9 +108,9 @@ const imgSrc: { value: string | undefined } = ref('')
 
 onMounted(() => {
   const user = JSON.parse(localStorage.getItem('user') as string)
+  console.log(user)
   if (user) {
     imgSrc.value = user.imageUrl
-    console.log(user.imageUrl)
   } else {
     imgSrc.value =
       'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg3.doubanio.com%2Fview%2Frichtext%2Flarge%2Fpublic%2Fp206989230.jpg&refer=http%3A%2F%2Fimg3.doubanio.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1654657833&t=5b33c95cbb12492cd96fa93377cbab0d'
@@ -136,23 +143,25 @@ const handleBeforeUpload = (file: any) => {
 }
 
 const handleUpload = (file: UploadFile) => {
+  console.log(file)
+
+  const Url = URL.createObjectURL(file.raw)
   const user = localStorage.getItem('user')
   axios
     .get('/upload', {
       params: {
-        imageUrl: file.url,
-        user: user,
+        user,
+        imageUrl: Url,
       },
     })
     .then((res: { data: { msg: MessageParamsTyped | undefined } }) => {
       const user = JSON.parse(localStorage.getItem('user') as any)
-      user.imageUrl = file.url
+      user.imageUrl = Url
       localStorage.setItem('user', JSON.stringify(user))
       ElMessage.success(res.data.msg)
-      imgSrc.value = file.url
+      imgSrc.value = Url
     })
     .catch((res: any) => {
-      console.log(res)
       ElMessage.error('上传失败!')
     })
 }

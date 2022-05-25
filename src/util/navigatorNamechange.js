@@ -3,6 +3,7 @@ const obj = {
   navigatorTwo: '天气预报',
   navigatorThree: '导航三',
   navigatorFour: '导航四',
+  blogsdetail: '博客详情',
 }
 function changetitle(name) {
   return obj[name]

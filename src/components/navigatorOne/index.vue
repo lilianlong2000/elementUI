@@ -1,5 +1,10 @@
 <template>
-  <el-card v-if="item.title" shadow="hover" style="margin-bottom: 20px; cursor: pointer">
+  <el-card
+    @click="goBlogsdetail"
+    v-if="item.title"
+    shadow="hover"
+    style="margin-bottom: 20px; cursor: pointer"
+  >
     <template #header>
       <div class="blogsheader">
         <h2>{{ title }}</h2>
@@ -14,15 +19,37 @@
       </div>
     </template>
     <p class="content">{{ content }}</p>
-    <div class="blogstime">{{ time }}</div>
+    <div class="blogstime">{{ author }}&nbsp;&nbsp;&nbsp;{{ times }}</div>
   </el-card>
-  <div v-else class="recommend">以下是推荐博客文章</div>
+  <div v-if="!item.title && index != 0" class="recommend">以下是推荐博客文章</div>
 </template>
 <script lang="ts" setup>
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+const times = ref('')
 const props = defineProps({
   item: Object,
+  index: Number,
 })
-const { title, content, likes, collect, time, view } = props.item as any
+const { title, content, likes, collect, time, view, author, id } = props.item as any
+const $router = useRouter()
+const goBlogsdetail = () => {
+  $router.push({
+    name: 'blogsdetail',
+    params: {
+      id,
+    },
+  })
+}
+onMounted(() => {
+  if (time) {
+    let t = time
+    let arr = t.split('')
+    arr.splice(-5)
+    arr.splice(10, 1, ' ')
+    times.value = arr.join('')
+  }
+})
 </script>
 <style lang="scss" scoped>
 .blogsheader {

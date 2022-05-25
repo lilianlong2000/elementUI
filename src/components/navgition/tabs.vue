@@ -25,11 +25,12 @@ const { state, commit } = useStore()
 const editableTabsIndex = ref('navigatorOne')
 const $router = useRouter()
 const editableTabsValue = computed(() => state.editableTabsValue)
+console.log(editableTabsValue)
+
 const removeTab = (targetName: string) => {
   const tabs = editableTabsValue as any
   let activeName = editableTabsIndex.value
-  console.log(activeName, targetName)
-  console.log(tabs.value)
+  console.log(tabs)
 
   if (activeName === targetName) {
     tabs.value.forEach((tab: any, index: number) => {

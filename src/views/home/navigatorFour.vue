@@ -1,3 +1,7 @@
 <template>
-  <h1>这是导航组件四</h1>
+  <el-row>
+    <el-col :span="16" :offset="4">
+      <el-card></el-card>
+    </el-col>
+  </el-row>
 </template>

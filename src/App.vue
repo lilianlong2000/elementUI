@@ -9,10 +9,12 @@
 </template>
 
 <script lang="ts" setup>
-import { watch, ref, nextTick, provide } from 'vue'
+import { watch, ref, nextTick, provide, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import { onBeforeRouteUpdate } from 'vue-router'
-const trans = ref('')
+const { state, commit } = useStore()
+const trans = computed(() => state.trans)
 const isRouterAlive = ref(true)
 const $router = useRouter()
 const reload = async () => {
@@ -26,11 +28,11 @@ watch(
   (newvalue: any, oldvalue: any) => {
     console.log(newvalue, oldvalue)
     if (newvalue.meta.index > oldvalue.meta.index) {
-      trans.value = 'trans-left'
+      commit('changetrans', 'trans-left')
       console.log(111)
     } else {
-      trans.value = 'trans-right'
       console.log(222)
+      commit('changetrans', 'trans-right')
     }
   }
 )
@@ -55,7 +57,6 @@ onBeforeRouteUpdate((to: any, form: any) => {
 .trans-left-leave-active,
 .trans-right-enter-active,
 .trans-right-leave-active {
-  position: absolute;
   opacity: 1;
   width: 100%;
   transition: all 0.3s ease-in-out;
