@@ -23,6 +23,11 @@ export default createStore({
     wheathInfo: [],
     wheathTodayInfo: {},
     trans: '',
+    isLikes: false,
+    isCollect: false,
+    animateType: 'fadeInLeftBig',
+    fontFamily: '微软雅黑 Microsoft YaHei',
+    navStyle: false,
   },
   mutations: {
     changeCollapse(state, data) {
@@ -62,6 +67,23 @@ export default createStore({
     },
     changetrans(state, data) {
       state.trans = data
+    },
+    changeBlogsDetailIcon(state, data) {
+      if (data.type == '1') {
+        state.isLikes = !state.isLikes
+      } else if (data.type == '2') {
+        state.isCollect = !state.isCollect
+      }
+    },
+    changeAnimateType(state, data) {
+      state.animateType = data
+    },
+    changeFontFamily(state, data) {
+      document.documentElement.style.fontFamily = data.split(' ')[1]
+      state.fontFamily = data
+    },
+    changeNavStyle(state, data) {
+      state.navStyle = data
     },
   },
   getters: {

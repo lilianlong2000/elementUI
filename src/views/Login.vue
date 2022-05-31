@@ -22,14 +22,10 @@
           <el-input v-model="loginFormObject.age" />
         </el-form-item>
         <el-form-item label="性别：">
-          <el-switch
-            v-model="loginFormObject.sex"
-            class="ml-2"
-            active-text="女"
-            active-color="#F56C6C"
-            inactive-text="男"
-            inactive-color="#409EFF"
-          />
+          <el-radio-group v-model="loginFormObject.sex">
+            <el-radio label="男" size="large">男</el-radio>
+            <el-radio label="女" size="large">女</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item>
           <el-button
@@ -60,13 +56,13 @@ interface loginform {
   name: String
   password: String
   age: number
-  sex: Boolean
+  sex: string
 }
 let loginFormObject: loginform = reactive({
   name: '',
   password: '',
   age: 0,
-  sex: false,
+  sex: '男',
 })
 const $router = useRouter()
 const $route = useRoute()
@@ -119,7 +115,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
           flag.value = false
           ElMessage.success(res.data.msg)
 
-          $router.push({ path: '/' })
+          $router.push({ name: 'home' })
         } else if (res.data.code === 0) {
           flag.value = false
           ElMessage.error(res.data.msg)

@@ -26,14 +26,10 @@
           <el-input v-model="registerFormObject.age" />
         </el-form-item>
         <el-form-item label="性别：">
-          <el-switch
-            v-model="registerFormObject.sex"
-            class="ml-2"
-            active-text="女"
-            active-color="#F56C6C"
-            inactive-text="男"
-            inactive-color="#409EFF"
-          />
+          <el-radio-group v-model="registerFormObject.sex">
+            <el-radio label="男" size="large">男</el-radio>
+            <el-radio label="女" size="large">女</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" plain style="width: 100%" @click="submitForm(formRef)"
@@ -58,13 +54,13 @@ interface loginform {
   name: String
   password: String
   age: number
-  sex: Boolean
+  sex: string
 }
 const registerFormObject: loginform = reactive({
   name: '',
   password: '',
   age: 0,
-  sex: false,
+  sex: '男',
 })
 let flag = ref(false)
 const formRef = ref<FormInstance>()

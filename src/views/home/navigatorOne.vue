@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div :class="'animated ' + animateType">
     <el-row>
       <el-col :span="10" :offset="1">
         <el-autocomplete
-          v-model="state"
+          v-model="state1"
           :fetch-suggestions="querySearch"
           clearable
           placeholder="请输入博客标题关键字进行搜索"
@@ -56,8 +56,8 @@
                   <span>{{ t.title }}</span>
                   <span class="time">{{ moditime(t.time, item.title) }}</span>
                 </div>
-                <div v-else>
-                  <span>暂无数据</span>
+                <div v-else class="datebox1">
+                  <span>暂无数据~</span>
                 </div>
               </el-collapse-item>
             </el-collapse>
@@ -79,6 +79,7 @@
 </template>
 <script lang="ts" setup>
 import { ref, reactive, onMounted, computed } from 'vue'
+import { useStore } from 'vuex'
 import NavigatorOne from '../../components/navigatorOne/index.vue'
 import { Search } from '@element-plus/icons-vue'
 import axios from '../../util/axios'
@@ -86,6 +87,7 @@ import type { ElScrollbar } from 'element-plus'
 import modititle from '../../util/blogsTimeChange'
 import changetitle from '@/util/navigatorNamechange'
 import dayjs from 'dayjs'
+
 const scrollbarRef = ref<InstanceType<typeof ElScrollbar>>()
 const publishDay = reactive([{ title: '1', name: '1' }])
 const activeNames = reactive(['1', '2', '3'])
@@ -93,12 +95,14 @@ const blogslist = reactive([
   {
     title: '还没有推荐的内容~请稍后刷新试试',
     content: '',
-    // likes: '1234',
-    // collect: '123',
-    // view: '123',
-    // time: '2021-5-19',
   },
 ])
+const { state } = useStore()
+const animateType = computed(() => state.animateType)
+const selectValue = ref('')
+const state1 = ref('')
+const computedtitle = computed(() => (i: string) => modititle(i))
+
 const upDay = () => {
   if (publishDay[0].title) {
     if (publishDay[0].title === '1') return
@@ -111,9 +115,6 @@ const downDay = () => {
     publishDay.reverse()
   }
 }
-const selectValue = ref('')
-const state = ref('')
-const computedtitle = computed(() => (i: string) => modititle(i))
 
 const querySearch = (queryString: string, cb: any) => {
   console.log(queryString)
@@ -225,5 +226,10 @@ onMounted(() => {
   box-sizing: border-box;
   border-radius: 4px;
   border: 1px solid #e4e7ed;
+}
+.datebox1 {
+  span {
+    margin-left: 15px;
+  }
 }
 </style>

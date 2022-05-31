@@ -1,25 +1,27 @@
 <template>
-  <el-row>
-    <el-col :span="24">
-      <div class="time">
-        <div class="update">距离下次更新还有:</div>
-        <div>{{ '0' + minutes }}</div>
-        <div class="semicolon">:</div>
-        <div>{{ seconds }}</div>
-      </div>
-    </el-col>
-  </el-row>
-  <el-row>
-    <el-col :span="24">
-      <el-scrollbar max-height="600px">
-        <div>
-          <div class="echartsbox" id="main"></div>
-          <el-button @click="getWheathTodayInfo">获取今天天气详情</el-button>
-          <div class="echartsbox1" id="main1"></div>
+  <div :class="'animated ' + animateType">
+    <el-row>
+      <el-col :span="24">
+        <div class="time">
+          <div class="update">距离下次更新还有:</div>
+          <div>{{ '0' + minutes }}</div>
+          <div class="semicolon">:</div>
+          <div>{{ seconds }}</div>
         </div>
-      </el-scrollbar>
-    </el-col>
-  </el-row>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="24">
+        <el-scrollbar max-height="600px">
+          <div>
+            <div class="echartsbox" id="main"></div>
+            <el-button @click="getWheathTodayInfo">获取今天天气详情</el-button>
+            <div class="echartsbox1" id="main1"></div>
+          </div>
+        </el-scrollbar>
+      </el-col>
+    </el-row>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -40,7 +42,7 @@ const minutes = ref('0')
 const seconds = ref('00')
 type EChartsOption = echarts.EChartsOption
 const { state, commit, getters } = useStore()
-
+const animateType = computed(() => state.animateType)
 function getWheathWeek() {
   axios
     .get('https://v0.yiketianqi.com/free/week', {

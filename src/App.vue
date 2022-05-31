@@ -1,11 +1,7 @@
 <template>
-  <router-view v-slot="{ Component }" v-if="isRouterAlive">
-    <keep-alive>
-      <Transition :name="trans" mode="out-in">
-        <component :is="Component" />
-      </Transition>
-    </keep-alive>
-  </router-view>
+  <keep-alive>
+    <router-view v-if="isRouterAlive"> </router-view>
+  </keep-alive>
 </template>
 
 <script lang="ts" setup>
@@ -23,19 +19,19 @@ const reload = async () => {
   isRouterAlive.value = true
 }
 provide('reload', reload)
-watch(
-  () => $router.currentRoute.value,
-  (newvalue: any, oldvalue: any) => {
-    console.log(newvalue, oldvalue)
-    if (newvalue.meta.index > oldvalue.meta.index) {
-      commit('changetrans', 'trans-left')
-      console.log(111)
-    } else {
-      console.log(222)
-      commit('changetrans', 'trans-right')
-    }
-  }
-)
+// watch(
+//   () => $router.currentRoute.value,
+//   (newvalue: any, oldvalue: any) => {
+//     console.log(newvalue, oldvalue)
+//     if (newvalue.meta.index > oldvalue.meta.index) {
+//       commit('changetrans', 'trans-left')
+//       console.log(111)
+//     } else {
+//       console.log(222)
+//       commit('changetrans', 'trans-right')
+//     }
+//   }
+// )
 /* 
 onBeforeRouteUpdate((to: any, form: any) => {
   console.log(to.meta.index, form.meta.index)
@@ -53,29 +49,29 @@ onBeforeRouteUpdate((to: any, form: any) => {
   margin: 0;
   padding: 0;
 }
-.trans-left-enter-active,
-.trans-left-leave-active,
-.trans-right-enter-active,
-.trans-right-leave-active {
-  opacity: 1;
-  width: 100%;
-  transition: all 0.3s ease-in-out;
-}
+// .trans-left-enter-active,
+// .trans-left-leave-active,
+// .trans-right-enter-active,
+// .trans-right-leave-active {
+//   opacity: 1;
+//   width: 100%;
+//   transition: all 0.3s ease-in-out;
+// }
 
-.trans-right-leave-to {
-  opacity: 0;
-  // transform: translate(20px, 0);
-}
-.trans-left-enter-from {
-  opacity: 1;
-  // transform: translate(20px, 0);
-}
-.trans-left-leave-to {
-  opacity: 0;
-  // transform: translate(-20px, 0);
-}
-.trans-right-enter-from {
-  opacity: 1;
-  // transform: translate(-20px, 0);
-}
+// .trans-right-leave-to {
+//   opacity: 0;
+//   // transform: translate(20px, 0);
+// }
+// .trans-left-enter-from {
+//   opacity: 1;
+//   // transform: translate(20px, 0);
+// }
+// .trans-left-leave-to {
+//   opacity: 0;
+//   // transform: translate(-20px, 0);
+// }
+// .trans-right-enter-from {
+//   opacity: 1;
+//   // transform: translate(-20px, 0);
+// }
 </style>

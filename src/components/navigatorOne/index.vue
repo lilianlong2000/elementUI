@@ -9,11 +9,11 @@
       <div class="blogsheader">
         <h2>{{ title }}</h2>
         <div>
-          <el-icon><Pointer /></el-icon>
+          <el-image :src="require('../../assets/iconfont/like_filled.png')"></el-image>
           <span>{{ likes }}</span>
-          <el-icon><Star /></el-icon>
+          <el-image :src="require('../../assets/iconfont/star_filled.png')"></el-image>
           <span>{{ collect }} </span>
-          <el-icon><View /></el-icon>
+          <el-image :src="require('../../assets/iconfont/view.png')"></el-image>
           <span>{{ view }}</span>
         </div>
       </div>
@@ -65,13 +65,16 @@ onMounted(() => {
   div {
     display: flex;
     justify-content: center;
-    height: 20px;
     align-items: center;
+    height: 30px;
     font-size: 16px;
-    margin-top: 10px;
     color: rgba(0, 0, 0, 0.6);
     span {
       margin-right: 10px;
+    }
+    .el-image {
+      width: 25px;
+      height: 25px;
     }
   }
 }

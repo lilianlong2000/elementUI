@@ -14,7 +14,12 @@
 
     <el-dropdown class="positionimage">
       <div>
-        <el-image class="headerimage" fit="fill" :src="imgSrc"></el-image>
+        <el-image class="headerimage" fit="fill" :src="imgSrc">
+          <template #error>
+            <el-image class="headerimage" :src="require('../../assets/defaulttouxiang.jpg')">
+            </el-image>
+          </template>
+        </el-image>
       </div>
       <template #dropdown>
         <el-dropdown-menu>
@@ -30,12 +35,13 @@
       title="上传头像"
       draggable
       width="30%"
+      :append-to-body="true"
       :before-upload="handleBeforeUpload"
     >
       <el-upload
-        :headers="multipart / form - data"
-        action="#"
+        action="http://127.0.0.1:8081/upload"
         list-type="picture-card"
+        method="get"
         :auto-upload="false"
         :ref="upload"
       >
@@ -79,7 +85,8 @@
 </template>
 <script lang='ts' setup>
 import { useStore } from 'vuex'
-import { onMounted, ref, reactive, computed } from 'vue'
+import $bus from '@/util/bus'
+import { onMounted, ref, reactive, computed, getCurrentInstance, onUnmounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   UploadFile,
@@ -91,7 +98,6 @@ import {
 import type { UploadProps } from 'element-plus'
 import { Delete, Upload, Plus, ZoomIn } from '@element-plus/icons-vue'
 import axios from '../../util/axios.js'
-
 const { state, commit } = useStore()
 const $router = useRouter()
 const color = ref('#2e50ff')
@@ -104,22 +110,22 @@ let dialogFormVisible = ref(false)
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const disabled = ref(false)
-const imgSrc: { value: string | undefined } = ref('')
-
+const imgSrc = ref('')
+const reload: any = inject('reload')
 onMounted(() => {
   const user = JSON.parse(localStorage.getItem('user') as string)
-  console.log(user)
   if (user) {
     imgSrc.value = user.imageUrl
-  } else {
-    imgSrc.value =
-      'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg3.doubanio.com%2Fview%2Frichtext%2Flarge%2Fpublic%2Fp206989230.jpg&refer=http%3A%2F%2Fimg3.doubanio.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1654657833&t=5b33c95cbb12492cd96fa93377cbab0d'
   }
 })
 
 const uploadBuddha = () => {
   dialogFormVisible.value = !dialogFormVisible.value
 }
+
+$bus.on('uploadB', (options: any) => {
+  dialogFormVisible.value = !dialogFormVisible.value
+})
 
 const handleRemove = (file: UploadFile) => {
   console.log(file)
@@ -145,21 +151,20 @@ const handleBeforeUpload = (file: any) => {
 const handleUpload = (file: UploadFile) => {
   console.log(file)
 
-  const Url = URL.createObjectURL(file.raw)
   const user = localStorage.getItem('user')
   axios
     .get('/upload', {
       params: {
         user,
-        imageUrl: Url,
+        imageUrl: file.url,
       },
     })
     .then((res: { data: { msg: MessageParamsTyped | undefined } }) => {
       const user = JSON.parse(localStorage.getItem('user') as any)
-      user.imageUrl = Url
+      user.imageUrl = file.url
       localStorage.setItem('user', JSON.stringify(user))
       ElMessage.success(res.data.msg)
-      imgSrc.value = Url
+      reload()
     })
     .catch((res: any) => {
       ElMessage.error('上传失败!')
@@ -171,12 +176,16 @@ const logOut = () => {
   localStorage.removeItem('token')
   //重置永久存储vuex中的editableTabsValue
   commit('reloadStore', null)
-  $router.push({ path: 'login' })
+  $router.push({ name: 'login' })
 }
 
 const goModiSelfinfo = () => {
-  $router.push({ path: 'modiselfinfo' })
+  $router.push({ name: 'modiselfinfo' })
+  commit('pushTabs', { name: 'modiselfinfo', title: '修改个人信息', path: '/modiselfinfo' })
 }
+onUnmounted(() => {
+  $bus.off('uploadBuddha')
+})
 </script>
 <style lang="scss" scoped>
 .header {

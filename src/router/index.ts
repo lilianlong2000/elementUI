@@ -51,6 +51,22 @@ const routes: Array<RouteRecordRaw> = [
         },
         component: () => import('@/views/home/blogsdetail.vue'),
       },
+      {
+        path: 'modiselfinfo',
+        name: 'modiselfinfo',
+        meta: {
+          index: 0.7,
+        },
+        component: () => import('../views/modiselfinfo.vue'),
+      },
+      {
+        path: 'publishblogs',
+        name: 'publishblogs',
+        meta: {
+          index: 0.8,
+        },
+        component: () => import('../views/home/publishblogs.vue'),
+      },
     ],
   },
   {
@@ -75,14 +91,6 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/404.vue'),
     meta: {
       index: 3,
-    },
-  },
-  {
-    path: '/modiselfinfo',
-    name: 'modiselfinfo',
-    component: () => import('../views/modiselfinfo.vue'),
-    meta: {
-      index: 4,
     },
   },
 ]

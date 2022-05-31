@@ -7,6 +7,9 @@
     @close="handleClose"
     router
     unique-opened
+    :active-text-color="!navStyle ? '#ffd04b' : '#409EFF'"
+    :background-color="!navStyle ? '#545c64' : '#ffffff'"
+    :text-color="!navStyle ? '#fff' : '#303133'"
   >
     <el-sub-menu index="navigatorOne">
       <template #title>
@@ -14,13 +17,13 @@
         <span>博客首页</span>
       </template>
       <el-sub-menu index="1-1">
-        <template #title><span>分组一</span></template>
+        <template #title><span>博客汇总</span></template>
         <el-menu-item index="navigatorOne">博客列表</el-menu-item>
         <el-menu-item index="blogsdetail">博客详情</el-menu-item>
       </el-sub-menu>
       <el-sub-menu index="1-2">
-        <template #title><span>分组二</span></template>
-        <el-menu-item index="1-2-1">子类一</el-menu-item>
+        <template #title><span>发布博客</span></template>
+        <el-menu-item index="publishblogs">发布文章</el-menu-item>
       </el-sub-menu>
       <el-sub-menu index="1-3">
         <template #title><span>分组三</span></template>
@@ -37,7 +40,7 @@
     </el-menu-item>
     <el-menu-item index="navigatorFour">
       <el-icon><setting /></el-icon>
-      <template #title>个人设置</template>
+      <template #title>系统设置</template>
     </el-menu-item>
   </el-menu>
 </template>
@@ -51,6 +54,7 @@ import changetitle from '../../util/navigatorNamechange.js'
 
 const { state, commit } = useStore()
 const isCollapse = computed(() => state.isCollapse)
+const navStyle = computed(() => state.navStyle)
 const $router = useRouter()
 const currentRouteName = ref('navigatorOne')
 const handleOpen = (key: string, keyPath: string[]) => {

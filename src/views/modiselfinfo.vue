@@ -1,16 +1,8 @@
 <template>
-  <div class="common-layout">
-    <el-container>
-      <el-header style="padding: 0">
-        <Header>
-          <template #title>
-            <div class="title">个人信息修改页面</div>
-          </template>
-        </Header>
-      </el-header>
-      <el-container>
-        <Aside></Aside>
-        <el-main>
+  <div :class="'animated ' + animateType">
+    <el-scrollbar max-height="650px">
+      <el-row>
+        <el-col :span="17" :offset="3">
           <el-card class="box-card">
             <template #header>
               <div class="card-header">
@@ -25,8 +17,26 @@
               style="max-width: 700px"
               :rules="rules"
             >
+              <el-form-item label="Head Portraits">
+                <div class="imagebox" @click="uploadBuddha">
+                  <el-image class="headerimage" fit="fill" :src="imgSrc">
+                    <template #error>
+                      <el-image class="headerimage" :src="require('../assets/defaulttouxiang.jpg')">
+                      </el-image>
+                    </template>
+                  </el-image>
+                  <div class="imagebg">点击修改</div>
+                </div>
+              </el-form-item>
               <el-form-item label="Name">
                 <el-input v-model="formLabelAlign.name" :disabled="nameflag" />
+              </el-form-item>
+              <el-form-item>
+                <div class="tip custom-block">
+                  <p>
+                    *修改信息需要填写密码，要修改密码需要两次输入新密码，不修改密码不需要填写新密码
+                  </p>
+                </div>
               </el-form-item>
               <el-form-item label="Password" prop="password">
                 <el-input
@@ -89,8 +99,8 @@
                   placeholder="请选择性别"
                   :disabled="index != 3"
                 >
-                  <el-option :key="false" :value="false" label="男"> </el-option>
-                  <el-option :key="true" :value="true" label="女"> </el-option>
+                  <el-option :key="false" value="男" label="男"> </el-option>
+                  <el-option :key="true" value="女" label="女"> </el-option>
                 </el-select>
                 <el-button @click="changeindex(3)" class="btn" type="danger" size="small">{{
                   !(index === 3) ? '修改' : '禁止修改'
@@ -104,16 +114,19 @@
               </el-form-item>
             </el-form>
           </el-card>
-        </el-main>
-      </el-container>
-    </el-container>
+        </el-col>
+      </el-row>
+    </el-scrollbar>
   </div>
 </template>
 <script lang="ts" setup>
 import Header from '@/components/home/header.vue'
 import Aside from '@/components/home/aside.vue'
-import { ref, reactive, onMounted, inject } from 'vue'
+import app from '@/main'
+import $bus from '@/util/bus'
+import { ref, createApp, reactive, onMounted, inject, computed, getCurrentInstance } from 'vue'
 import axios from '@/util/axios'
+import { useStore } from 'vuex'
 import { ElMessageBox, FormInstance, ElMessage } from 'element-plus'
 interface formLabel {
   name: string
@@ -135,6 +148,9 @@ const nameflag = ref(true)
 const index = ref(0)
 const reload: Function | undefined = inject('reload')
 const formRef = ref<FormInstance>()
+const { state, commit } = useStore()
+const animateType = computed(() => state.animateType)
+const imgSrc = ref('')
 const rules = {
   password: [
     {
@@ -157,7 +173,7 @@ const rules = {
   ],
   newpsw: [
     {
-      required: true,
+      // required: true,
       message: '请输入新密码！',
       trigger: 'change',
     },
@@ -165,30 +181,37 @@ const rules = {
   ],
   againnewpsw: [
     {
-      required: true,
+      // required: true,
       message: '请再次输入新密码！',
       trigger: 'change',
     },
     { min: 6, max: 16, message: '密码的长度为6-16个任意字符!', trigger: 'change' },
   ],
 }
+
 onMounted(() => {
   getuserinfo()
 })
-
+const uploadBuddha = () => {
+  $bus.emit('uploadB')
+}
 var getuserinfo = () => {
   const user = JSON.parse(localStorage.getItem('user') as string)
-  for (let key in user) {
-    formLabelAlign[key] = user[key]
+  if (user) {
+    imgSrc.value = user.imageUrl
   }
-  // axios.get('/getuserinfo', { params: { name: user.name } } as any).then((res) => {
-  //   console.log(res.data)
-  //   if (res.data.code === 1) {
-  //     formLabelAlign.password = res.data.password
-  //   } else if (res.data.code === 0) {
-  //     ElMessage.error(res.data.msg)
-  //   }
-  // })
+  axios.get('/getuserinfo', { params: { id: user.id } } as any).then((res) => {
+    if (res.data.code === 1) {
+      console.log(res.data)
+      const { name, age, sex } = res.data.msg
+      localStorage.setItem('user', JSON.stringify(res.data.msg))
+      formLabelAlign.name = name
+      formLabelAlign.age = age
+      formLabelAlign.sex = sex
+    } else if (res.data.code === 0) {
+      ElMessage.error(res.data.msg)
+    }
+  })
 }
 
 const submitForm = (formEl: FormInstance | undefined) => {
@@ -199,6 +222,10 @@ const submitForm = (formEl: FormInstance | undefined) => {
       console.log(data)
       if (data.newpsw !== data.againnewpsw) {
         return ElMessage.error('两次输入的新密码不一样!')
+      }
+      if (data.newpsw == '' && data.againnewpsw == '') {
+        data.newpsw = data.password
+        data.modinopsw = true
       }
       delete data.againnewpsw
       data.oldpsw = data.password
@@ -219,7 +246,6 @@ const submitForm = (formEl: FormInstance | undefined) => {
     }
   })
 }
-
 const changeindex = (num: number) => {
   index.value === num ? (index.value = 0) : (index.value = num)
 }
@@ -250,5 +276,48 @@ const changeindex = (num: number) => {
 }
 .commitbtn {
   width: 100%;
+}
+.custom-block.tip {
+  width: 100%;
+  padding: 0px 16px;
+  background-color: rgba(64, 128, 255, 0.1);
+  border-radius: 4px;
+  border-left: 5px solid var(--el-color-primary);
+  margin: 20px 0;
+  .custom-block-title {
+    font-weight: 700;
+  }
+  p {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+  }
+}
+.el-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+.imagebox {
+  position: relative;
+  cursor: pointer;
+  .imagebg {
+    top: 0;
+    left: 0;
+    color: white;
+    position: absolute;
+    width: 60px;
+    text-align: center;
+    line-height: 60px;
+    display: none;
+    height: 60px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  &:hover .imagebg {
+    display: block;
+  }
 }
 </style>

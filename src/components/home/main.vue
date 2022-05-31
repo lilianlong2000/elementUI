@@ -1,13 +1,9 @@
 <template>
   <Tabs></Tabs>
   <div class="mainbox">
-    <router-view v-slot="{ Component }" v-if="refresh">
-      <keep-alive>
-        <Transition :name="trans" mode="out-in">
-          <component :is="Component" />
-        </Transition>
-      </keep-alive>
-    </router-view>
+    <keep-alive>
+      <router-view v-if="refresh"> </router-view>
+    </keep-alive>
   </div>
 </template>
 <script lang="ts" setup>
@@ -32,30 +28,5 @@ provide('refreshfun', refreshfun)
   height: 654px;
   width: 1320px;
   // margin-left: -20px;
-}
-.trans-left-enter-active,
-.trans-left-leave-active,
-.trans-right-enter-active,
-.trans-right-leave-active {
-  opacity: 1;
-  width: 100%;
-  transition: all 0.5s ease-in-out;
-}
-
-.trans-right-leave-to {
-  opacity: 0;
-  // transform: translate(20px, 0);
-}
-.trans-left-enter-from {
-  opacity: 1;
-  // transform: translate(20px, 0);
-}
-.trans-left-leave-to {
-  opacity: 0;
-  // transform: translate(-20px, 0);
-}
-.trans-right-enter-from {
-  opacity: 1;
-  // transform: translate(-20px, 0);
 }
 </style>
