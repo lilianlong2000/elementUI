@@ -5,16 +5,16 @@
         <el-col :span="17" :offset="3">
           <el-card>
             <h1 style="text-align: center">{{ blogsDetail?.title }}</h1>
-            <div class="blogsdetailcontent">{{ blogsDetail?.content }}</div>
-
             <BlogsDetailIcon :id="ids" v-if="isShowIcon"></BlogsDetailIcon>
+            <el-divider />
+            <div class="blogsdetailcontent" v-html="blogsDetail?.content"></div>
           </el-card>
         </el-col>
       </el-row>
       <el-row @click="clickevent">
         <el-col :span="17" :offset="3">
           <el-card>
-            <h3 style="margin-bottom: 10px">发表评论({{ comment?.length }})</h3>
+            <h3 style="margin-bottom: 10px">发表评论({{ comment?.length || 0 }})</h3>
             <el-popover placement="bottom" :width="400" trigger="click" :visible="visible">
               <el-scrollbar max-height="200px">
                 <span class="emojiitem" @click="hendleClick(item)" v-for="item in a">{{
@@ -45,14 +45,19 @@
               type="textarea"
               :placeholder="!commentName ? '对作者说点什么把~' : `回复${commentName}`"
               ref="eltextarea"
-              @change="sendComment"
             />
             <div class="btnsubmit">
               <el-button type="primary" @click="sendComment">{{
                 !iscallback ? '发表评论' : '回复'
               }}</el-button>
             </div>
-            <Comment @callback="callback" :item="item" v-for="item in comment"> </Comment>
+            <Comment
+              :authorid="blogsDetail.author_id"
+              @callback="callback"
+              :item="item"
+              v-for="item in comment"
+            >
+            </Comment>
           </el-card>
         </el-col>
       </el-row>
@@ -134,7 +139,7 @@ const sendComment = () => {
       })
       .then((res) => {
         textarea.value = ''
-        refreshfun()
+        getusercomment()
       })
       .catch((err) => {
         console.log(err)
@@ -152,7 +157,7 @@ const sendComment = () => {
       })
       .then((res) => {
         textarea.value = ''
-        refreshfun()
+        getusercomment()
       })
       .catch((err) => {
         console.log(err)
@@ -181,11 +186,10 @@ const hendleCommentTime = (data: any) => {
   }
   return data
 }
-const getusercomment = () => {
+var getusercomment = () => {
   axios
     .get('/getusercomment', { params: { id: ids } })
     .then((res) => {
-      console.log('&*&*', res)
       if (res.data.code == 1) {
         hendleCommentTime(res.data.msg)
         comment.value = hendleCommentTime(res.data.msg).reverse()
@@ -249,6 +253,7 @@ onBeforeUnmount(() => {
   background-color: #2e50ff;
 }
 .blogsdetailcontent {
+  padding: 20px 0;
   letter-spacing: 0.2em;
   line-height: 1.3em;
   text-indent: 2em;

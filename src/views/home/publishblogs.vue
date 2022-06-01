@@ -8,7 +8,7 @@
           </template>
           <el-card shadow="never">
             <div>
-              <div style="border: 1px solid #ccc; margin-top: 10px">
+              <div>
                 <Toolbar
                   :editor="editorRef"
                   :defaultConfig="toolbarConfig"
@@ -16,20 +16,23 @@
                   style="border-bottom: 1px solid #ccc"
                 />
                 <div class="titlebox">
-                  <el-input
-                    v-model="title"
-                    maxlength="120"
-                    :minlength="5"
-                    type="text"
-                    show-word-limit
-                    placeholder="请输入文章标题"
-                    @keyup.enter="hendleEnter"
-                  >
-                  </el-input>
-                  <span v-if="title && limittitlenum > 0"
-                    >还需要输入<i style="color: red">{{ limittitlenum }}</i
-                    >个字</span
-                  >
+                  <div>
+                    <el-input
+                      v-model="title"
+                      maxlength="120"
+                      :minlength="5"
+                      type="text"
+                      show-word-limit
+                      placeholder="请输入文章标题"
+                      @keyup.enter="hendleEnter"
+                    >
+                    </el-input>
+                    <span v-if="limittitlenum > 0"
+                      >还需要输入<i style="color: red">{{ limittitlenum }}</i
+                      >个字</span
+                    >
+                  </div>
+                  <el-button @click="publishblogs" type="primary"> 发布文章 </el-button>
                 </div>
                 <Editor
                   :defaultConfig="editorConfig"
@@ -45,17 +48,7 @@
                   @customPaste="customPaste"
                 />
               </div>
-              <div style="margin-top: 10px">
-                <textarea
-                  v-model="valueHtml"
-                  readonly
-                  style="width: 100%; height: 200px; outline: none"
-                ></textarea>
-              </div>
             </div>
-            <el-button @click="publishblogs" type="primary" style="width: 50%; margin-left: 300px">
-              发布文章
-            </el-button>
           </el-card>
         </el-card>
       </el-col>
@@ -67,14 +60,19 @@ import '@wangeditor/editor/dist/css/style.css'
 import axios from '@/util/axios'
 import { onBeforeUnmount, ref, shallowRef, onMounted, watch } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
+import { ElMessage } from 'element-plus'
 const editorRef = shallowRef()
 
 // 内容 HTML
-const valueHtml = ref('')
+const valueHtml = ref(``)
 const title = ref('')
 const limittitlenum = ref(5)
+const { id, name } = JSON.parse(localStorage.getItem('user') as string)
 watch(title, (newvalue, oldvalue) => {
-  if (newvalue.split('').length > 5) return
+  if (newvalue.split('').length > 5) {
+    limittitlenum.value = 0
+    return
+  }
   limittitlenum.value = 5 - title.value.split('').length
 })
 
@@ -148,9 +146,14 @@ const hendleEnter = () => {
 const publishblogs = () => {
   console.log(valueHtml.value)
   axios
-    .post('/publishblogs', { params: { content: valueHtml.value, title: title.value } })
+    .post('/publishblogs', { id, name, content: valueHtml.value, title: title.value })
     .then((res) => {
-      console.log(res)
+      if (res.data.code == 1) {
+        return ElMessage.success(res.data.msg)
+      } else if (res.data.code == 0) {
+        return ElMessage.error(res.data.msg)
+      }
+      ElMessage.error('未知错误!')
     })
 }
 </script>
@@ -159,17 +162,32 @@ const publishblogs = () => {
   z-index: 999;
 }
 .titlebox {
-  position: relative;
-  .el-input {
-    margin: 10px;
+  display: flex;
+  align-items: center;
+  div {
     width: 80%;
+    position: relative;
+  }
+  .el-input {
+    // margin: 10px;
+    padding: 10px;
+    width: 100%;
     font-size: 18.7px;
   }
   span {
     position: absolute;
-    right: 280px;
+    right: 100px;
     top: 14px;
     z-index: 999;
   }
+  .el-button {
+    // float: right;
+    // width: 30%;
+    flex: 1;
+  }
+}
+.w-e-full-screen-container {
+  background-color: white;
+  z-index: 9999;
 }
 </style>

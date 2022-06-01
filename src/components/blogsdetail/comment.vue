@@ -1,7 +1,7 @@
 <template>
   <div class="subbox">
     <div>
-      <el-image class="imagebox" :src="item.user.imageUrl">
+      <el-image class="imagebox" :src="item.user.photo">
         <template #error>
           <el-image class="headerimage" :src="require('../../assets/defaulttouxiang.jpg')">
           </el-image>
@@ -11,6 +11,13 @@
     <div class="replybox">
       <div class="nandt">
         <span>{{ item.user.name }}</span>
+        &nbsp;
+        <span
+          @click="goauthordetail(item.user.id)"
+          v-if="authorid == item.user.id"
+          class="authormark"
+          >作者</span
+        >
         <span> &nbsp;&nbsp;{{ item.time ? item.time : '未知' }}</span>
       </div>
       <div class="content">
@@ -23,7 +30,7 @@
       </div>
       <div class="subbox" v-if="item.children.length" v-for="item in item.children">
         <div>
-          <el-image class="imagebox" :src="item.user.imageUrl">
+          <el-image class="imagebox" :src="item.user.photo">
             <template #error>
               <el-image class="headerimage" :src="require('../../assets/defaulttouxiang.jpg')">
               </el-image>
@@ -51,16 +58,28 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 const props = defineProps<{
   item: Object
+  authorid: number
 }>()
+
 const emit = defineEmits<{
   (e: 'callback', id: number, name: string, commentid: number): void
 }>()
+
+const $router = useRouter()
+const { commit } = useStore()
 const hendleClick = (id: number, name: string, commentid: number) => {
   emit('callback', id, name, commentid)
 }
 const { commentid } = props.item as any
+const goauthordetail = (id: number) => {
+  commit('changeUserInfoId', id)
+  commit('pushTabs', { name: 'userhome', title: '用户博客信息', path: '/userhome' })
+  $router.push({ name: 'userhome' })
+}
 </script>
 <style lang="scss" scoped>
 .subbox {
@@ -91,5 +110,17 @@ const { commentid } = props.item as any
       word-break: break-word;
     }
   }
+}
+.authormark {
+  background-color: rgba(252, 85, 49, 0.1);
+  color: #fc5531;
+  font-size: 12px;
+  width: 30px;
+  height: 16px;
+  border-radius: 2px;
+  text-align: center;
+  line-height: 16px;
+  vertical-align: 1px;
+  cursor: pointer;
 }
 </style>

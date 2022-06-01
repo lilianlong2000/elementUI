@@ -198,11 +198,10 @@ const uploadBuddha = () => {
 var getuserinfo = () => {
   const user = JSON.parse(localStorage.getItem('user') as string)
   if (user) {
-    imgSrc.value = user.imageUrl
+    imgSrc.value = user.photo
   }
   axios.get('/getuserinfo', { params: { id: user.id } } as any).then((res) => {
     if (res.data.code === 1) {
-      console.log(res.data)
       const { name, age, sex } = res.data.msg
       localStorage.setItem('user', JSON.stringify(res.data.msg))
       formLabelAlign.name = name

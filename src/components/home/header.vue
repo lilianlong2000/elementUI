@@ -8,7 +8,13 @@
     <slot name="title" class="slot"></slot>
     <el-tooltip placement="bottom" content="更改主题色">
       <div class="el-color-picker">
-        <el-color-picker v-model="color"></el-color-picker>
+        <el-color-picker
+          v-model="color"
+          show-alpha
+          :predefine="predefineColors"
+          @active-change="handelcolor"
+          @change="handelcolor1"
+        ></el-color-picker>
       </div>
     </el-tooltip>
 
@@ -36,14 +42,16 @@
       draggable
       width="30%"
       :append-to-body="true"
-      :before-upload="handleBeforeUpload"
     >
       <el-upload
-        action="http://127.0.0.1:8081/upload"
+        action="#"
         list-type="picture-card"
         method="get"
+        :file-list="fileList"
         :auto-upload="false"
         :ref="upload"
+        :on-change="onChangeUpload"
+        :before-upload="handleBeforeUpload"
       >
         <el-icon><Plus /></el-icon>
 
@@ -86,7 +94,16 @@
 <script lang='ts' setup>
 import { useStore } from 'vuex'
 import $bus from '@/util/bus'
-import { onMounted, ref, reactive, computed, getCurrentInstance, onUnmounted, inject } from 'vue'
+import {
+  onMounted,
+  ref,
+  reactive,
+  computed,
+  getCurrentInstance,
+  onUnmounted,
+  inject,
+  Ref,
+} from 'vue'
 import { useRouter } from 'vue-router'
 import {
   UploadFile,
@@ -94,13 +111,30 @@ import {
   UploadRequestOptions,
   ElMessage,
   MessageParamsTyped,
+  UploadUserFile,
 } from 'element-plus'
 import type { UploadProps } from 'element-plus'
 import { Delete, Upload, Plus, ZoomIn } from '@element-plus/icons-vue'
 import axios from '../../util/axios.js'
 const { state, commit } = useStore()
 const $router = useRouter()
-const color = ref('#2e50ff')
+const color = computed(() => state.color)
+const predefineColors = ref([
+  '#2e50ff',
+  '#ff4500',
+  '#ff8c00',
+  '#ffd700',
+  '#90ee90',
+  '#00ced1',
+  '#1e90ff',
+  'rgba(255, 69, 0, 0.68)',
+  'rgb(255, 120, 0)',
+  'hsv(51, 100, 98)',
+  'hsva(120, 40, 94, 0.5)',
+  'hsl(181, 100%, 37%)',
+  'hsla(209, 100%, 56%, 0.73)',
+  '#c7158577',
+])
 const upload = ref()
 const changeCollapse = () => {
   commit('changeCollapse', !state.isCollapse)
@@ -112,10 +146,12 @@ const dialogVisible = ref(false)
 const disabled = ref(false)
 const imgSrc = ref('')
 const reload: any = inject('reload')
+const beforeUpdateImg: Ref<{ uid: number; photo: string }[]> = ref([])
+const fileList = ref<UploadUserFile[]>([])
 onMounted(() => {
   const user = JSON.parse(localStorage.getItem('user') as string)
   if (user) {
-    imgSrc.value = user.imageUrl
+    imgSrc.value = user.photo
   }
 })
 
@@ -127,41 +163,41 @@ $bus.on('uploadB', (options: any) => {
   dialogFormVisible.value = !dialogFormVisible.value
 })
 
-const handleRemove = (file: UploadFile) => {
-  console.log(file)
+const handleRemove: UploadProps['onChange'] = (uploadFile) => {
+  let index
+  fileList.value.forEach((item, i) => {
+    if (item.name == uploadFile.name) {
+      index = i
+    }
+  })
+  if (index != undefined) {
+    fileList.value.splice(index, 1)
+  }
+  // fileList.value = fileList.value.map((item, index) => {
+  //   console.log(item, index)
+  //   if (item.name == uploadFile.name) fileList.value.splice(index, 1)
+  // }) as any
 }
 
 const handlePictureCardPreview = (file: UploadFile) => {
   dialogImageUrl.value = file.url!
   dialogVisible.value = true
 }
-
-const handleBeforeUpload = (file: any) => {
-  const isImage = file.type.includes('image')
-  if (!isImage) {
-    ElMessage.error('上传文件类型必须是图片!')
-  }
-  const isLt2M = file.size / 1024 / 1024 < 2
-  if (!isLt2M) {
-    ElMessage.error('上传图片大小不能超过 2MB!')
-  }
-  return isImage && isLt2M
-}
-
 const handleUpload = (file: UploadFile) => {
-  console.log(file)
-
-  const user = localStorage.getItem('user')
+  const { uid, photo } = beforeUpdateImg.value[0]
+  const user = JSON.parse(localStorage.getItem('user') as any)
+  const user1 = { id: user.id, name: user.name }
   axios
-    .get('/upload', {
+    .post('/upload', {
       params: {
-        user,
-        imageUrl: file.url,
+        user: user1,
+        photo,
+        uid,
       },
     })
     .then((res: { data: { msg: MessageParamsTyped | undefined } }) => {
       const user = JSON.parse(localStorage.getItem('user') as any)
-      user.imageUrl = file.url
+      user.photo = photo
       localStorage.setItem('user', JSON.stringify(user))
       ElMessage.success(res.data.msg)
       reload()
@@ -169,6 +205,29 @@ const handleUpload = (file: UploadFile) => {
     .catch((res: any) => {
       ElMessage.error('上传失败!')
     })
+}
+
+const onChangeUpload = (file: UploadFile) => {
+  const isImage = file.raw?.type.includes('image')
+  if (!isImage) {
+    ElMessage.error('上传文件类型必须是图片!')
+    fileList.value.pop()
+    return
+  }
+  const isLt08M = (file.size as number) / 1024 / 1024 < 0.8
+  if (!isLt08M) {
+    ElMessage.error('上传图片大小不能超过 0.8MB!')
+    fileList.value.pop()
+    return
+  }
+  const reader = new FileReader()
+  reader.onload = function (e) {
+    beforeUpdateImg.value.push({
+      uid: file.uid,
+      photo: reader.result as any,
+    })
+  }
+  reader.readAsDataURL(file.raw as any)
 }
 
 const logOut = () => {
@@ -182,6 +241,11 @@ const logOut = () => {
 const goModiSelfinfo = () => {
   $router.push({ name: 'modiselfinfo' })
   commit('pushTabs', { name: 'modiselfinfo', title: '修改个人信息', path: '/modiselfinfo' })
+}
+
+const handelcolor = (c: string) => {}
+const handelcolor1 = (c: string) => {
+  commit('changeColor', c)
 }
 onUnmounted(() => {
   $bus.off('uploadBuddha')

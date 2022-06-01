@@ -67,6 +67,14 @@ const routes: Array<RouteRecordRaw> = [
         },
         component: () => import('../views/home/publishblogs.vue'),
       },
+      {
+        path: 'userhome',
+        name: 'userhome',
+        meta: {
+          index: 0.8,
+        },
+        component: () => import('../views/Userhome.vue'),
+      },
     ],
   },
   {

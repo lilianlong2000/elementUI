@@ -10,15 +10,15 @@
         <h2>{{ title }}</h2>
         <div>
           <el-image :src="require('../../assets/iconfont/like_filled.png')"></el-image>
-          <span>{{ likes }}</span>
+          <span>{{ likes || 0 }}</span>
           <el-image :src="require('../../assets/iconfont/star_filled.png')"></el-image>
-          <span>{{ collect }} </span>
+          <span>{{ collect || 0 }} </span>
           <el-image :src="require('../../assets/iconfont/view.png')"></el-image>
-          <span>{{ view }}</span>
+          <span>{{ view || 0 }}</span>
         </div>
       </div>
     </template>
-    <p class="content">{{ content }}</p>
+    <p class="content" v-html="content"></p>
     <div class="blogstime">{{ author }}&nbsp;&nbsp;&nbsp;{{ times }}</div>
   </el-card>
   <div v-if="!item.title && index != 0" class="recommend">以下是推荐博客文章</div>
@@ -86,6 +86,8 @@ onMounted(() => {
 }
 .content {
   word-wrap: break-word;
+  max-height: 200px;
+  overflow: hidden;
 }
 .recommend {
   width: 80%;

@@ -186,12 +186,12 @@ const animatetypes = [
     children: ['hinge', 'rollIn', 'rollOut'],
   },
 ]
-const family = ref('微软雅黑 Microsoft YaHei')
+const family = ref('微软雅黑 Microsoft YaHei --默认')
 const size = ref(14)
 const fontFamily = [
   '宋体 SimSun',
   '黑体 SimHei',
-  '微软雅黑 Microsoft YaHei',
+  '微软雅黑 Microsoft YaHei -默认',
   '微软正黑体 Microsoft JhengHei',
   '新宋体 NSimSun',
   '新细明体 PMingLiU',
@@ -209,6 +209,7 @@ const commitAnimateType = () => {
 watch(family, (newvalue, oldvalue) => {
   console.log(newvalue, oldvalue)
   commit('changeFontFamily', newvalue)
+  document.documentElement.style.fontFamily = newvalue.split(' ')[1]
 })
 watch(size, (newvalue, oldvalue) => {
   console.log(newvalue, oldvalue)

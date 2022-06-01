@@ -28,6 +28,8 @@ export default createStore({
     animateType: 'fadeInLeftBig',
     fontFamily: '微软雅黑 Microsoft YaHei',
     navStyle: false,
+    color: '#2e50ff',
+    userinfoid: 0,
   },
   mutations: {
     changeCollapse(state, data) {
@@ -79,11 +81,16 @@ export default createStore({
       state.animateType = data
     },
     changeFontFamily(state, data) {
-      document.documentElement.style.fontFamily = data.split(' ')[1]
       state.fontFamily = data
     },
     changeNavStyle(state, data) {
       state.navStyle = data
+    },
+    changeColor(state, data) {
+      state.color = data
+    },
+    changeUserInfoId(state, data) {
+      state.userinfoid = data
     },
   },
   getters: {
